@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 
-from RecipesProject.main.forms import CreateRecipeForm
+from RecipesProject.main.forms import CreateRecipeForm, EditRecipeForm, DeleteRecipeForm
 from RecipesProject.main.models import Recipe
 
 
@@ -33,14 +33,47 @@ def create(request):
     return render(request, 'create.html', context)
 
 
-def edit(requests, pk):
-    pass
+def edit(request, pk):
+    instance = Recipe.objects.get(pk=pk)
+    if request.method == 'POST':
+        form = EditRecipeForm(request.POST, instance=instance)
+        if form.is_valid():
+            form.save()
+            return redirect('/')
+    else:
+        form = EditRecipeForm(instance=instance)
+
+    context = {
+        'form': form,
+        'instance': instance,
+    }
+    return render(request, 'edit.html', context)
 
 
-def delete(requests, pk):
-    pass
+def delete(request, pk):
+    instance = Recipe.objects.get(pk=pk)
+    if request.method == 'POST':
+        form = DeleteRecipeForm(request.POST, request.FILES, instance=instance)
+        if form.is_valid():
+            form.save()
+            return redirect('/')
+
+    else:
+        form = DeleteRecipeForm(instance=instance)
+    context = {
+        'form': form,
+        'instance': instance,
+    }
+    return render(request, 'delete.html', context)
 
 
-def details(requests, pk):
-    pass
+def details(request, pk):
+    instance = Recipe.objects.get(pk=pk)
+    list_of_ingredients = instance.ingredients.split(", ")
+
+    context = {
+        'instance': instance,
+        'list_of_ingredients': list_of_ingredients,
+    }
+    return render(request, 'details.html', context, )
 
